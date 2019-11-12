@@ -12,7 +12,7 @@ Instructions:
 
 By default the username is set to winsomehax (my account). The addon accesses the DLIVE site to get the list of streamers you follow.
 
-NOTE: This isn't a security issue/problem. You can see who other users are following via the stream.me website. 
+NOTE: This isn't a security issue/problem. You can see who other users are following via the DLIVE website.
 
 Open the addon and it will show a top level menu:
 

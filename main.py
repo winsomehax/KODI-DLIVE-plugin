@@ -125,7 +125,7 @@ def followed_replay_user(user):
 
 @plugin.route('/livestreams_search')
 def livestreams_search():
-	search_for = Dialog().input("Hello", "", INPUT_ALPHANUM, 0, 0).upper()
+	search_for = Dialog().input("Enter search", "", INPUT_ALPHANUM, 0, 0).upper()
 
 	any_replays = False
 

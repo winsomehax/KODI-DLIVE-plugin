@@ -1,6 +1,6 @@
 import routing
 from xbmcplugin import addDirectoryItem, endOfDirectory, setContent
-from xbmcgui import ListItem
+from xbmcgui import ListItem, Dialog, INPUT_ALPHANUM
 import xbmcaddon
 import dlivequery
 
@@ -27,6 +27,10 @@ def index():
 	li = ListItem('Replays of followed streamers', iconImage="")
 	li.setProperty('IsPlayable', 'False')
 	addDirectoryItem(h, plugin.url_for(followed_replay), listitem=li, isFolder=True)
+
+	li = ListItem('Search current live streams', iconImage="")
+	li.setProperty('IsPlayable', 'False')
+	addDirectoryItem(h, plugin.url_for(livestreams_search), listitem=li, isFolder=True)
 
 	endOfDirectory(h)
 
@@ -96,7 +100,7 @@ def followed_replay_user(user):
 		title = u[0]
 		length = u[1]
 		thumb = u[2]
-		playbackUrl = u[3]
+		playback_url = u[3]
 
 		li = ListItem(title, iconImage=thumb)
 		li.setProperty('IsPlayable', 'True')
@@ -107,12 +111,50 @@ def followed_replay_user(user):
 		li.setArt({'thumb': thumb})
 		li.setArt({'banner': thumb})
 
-		addDirectoryItem(h, playbackUrl, listitem=li, isFolder=False)
+		addDirectoryItem(h, playback_url, listitem=li, isFolder=False)
 
 		any_replays = True
 
 	if not any_replays:
 		li = ListItem("** NO REPLAYS FOUND **", iconImage="")
+		li.setProperty('IsPlayable', 'False')
+		addDirectoryItem(h, "", listitem=li, isFolder=False)
+
+	endOfDirectory(h)
+
+
+@plugin.route('/livestreams_search')
+def livestreams_search():
+	search_for = Dialog().input("Hello", "", INPUT_ALPHANUM, 0, 0).upper()
+
+	any_replays = False
+
+	h = plugin.handle
+	setContent(h, "videos")
+	f = dq.all_live_streams()
+
+	for u in f:
+		title = u[0]
+		playback_url = u[1]
+		thumb = u[2]
+		user = u[3]
+
+		if search_for in title.upper():
+			li = ListItem(user + ": " + title, iconImage=thumb)
+			li.setProperty('IsPlayable', 'True')
+			li.setInfo("video", {'mediatype': 'video', 'duration': 0})
+			li.addStreamInfo('video', {'duration': 0})
+			li.setArt({'icon': thumb})
+			li.setArt({'poster': thumb})
+			li.setArt({'thumb': thumb})
+			li.setArt({'banner': thumb})
+
+			addDirectoryItem(h, playback_url, listitem=li, isFolder=False)
+
+			any_replays = True
+
+	if not any_replays:
+		li = ListItem("** NO LIVE STREAMS FOUND **", iconImage="")
 		li.setProperty('IsPlayable', 'False')
 		addDirectoryItem(h, "", listitem=li, isFolder=False)
 

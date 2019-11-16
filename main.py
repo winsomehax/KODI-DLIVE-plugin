@@ -2,41 +2,76 @@ import routing
 from xbmcplugin import addDirectoryItem, endOfDirectory, setContent
 from xbmcgui import ListItem, Dialog, INPUT_ALPHANUM
 import xbmcaddon
-import dlivequery
+import dlivequery as dq
 
 plugin = routing.Plugin()
-# kp = kf.KodiPlugin()
-dq = dlivequery.DliveInfo()
 
 
 @plugin.route('/')
 def index():
-	h = plugin.handle
-	setContent(h, "videos")
+	build_main_menu()
 
+
+@plugin.route('/followed_live')
+def followed_live():
+	build_followed_live()
+
+
+@plugin.route('/followed_replay')
+def followed_replay():
+	build_followed_replay()
+
+
+@plugin.route('/followed_replay_user/<user>')
+def followed_replay_user(user):
+	build_followed_replay_user(user)
+
+
+@plugin.route('/livestreams_search')
+def livestreams_search():
+	build_livestreams_search()
+
+
+@plugin.route('/all_livestreams')
+def livestreams_all():
+	build_all_livestreams()
+
+
+@plugin.route('/open_settings')
+def open_settings():
+	build_open_settings()
+
+
+def build_main_menu():
 	dq_user = xbmcaddon.Addon().getSetting("user")
 
+	h = plugin.handle
+
+	setContent(h, "videos")
 	li = ListItem("Your DLIVE username is: " + dq_user, iconImage="")
 	li.setProperty('IsPlayable', 'False')
 	addDirectoryItem(h, plugin.url_for(open_settings), listitem=li, isFolder=True)
 
-	li = ListItem("Live streamers you follow", iconImage="")
+	li = ListItem("Currently live streamers you follow", iconImage="")
 	li.setProperty('IsPlayable', 'False')
 	addDirectoryItem(h, plugin.url_for(followed_live), listitem=li, isFolder=True)
 
-	li = ListItem('Replays of followed streamers', iconImage="")
+	li = ListItem('Replays of streamers you follow', iconImage="")
 	li.setProperty('IsPlayable', 'False')
 	addDirectoryItem(h, plugin.url_for(followed_replay), listitem=li, isFolder=True)
 
-	li = ListItem('Search current live streams', iconImage="")
+	li = ListItem('View all currently live streams', iconImage="")
+	li.setProperty('IsPlayable', 'False')
+	addDirectoryItem(h, plugin.url_for(livestreams_all), listitem=li, isFolder=True)
+
+	li = ListItem('Search currently live streams', iconImage="")
 	li.setProperty('IsPlayable', 'False')
 	addDirectoryItem(h, plugin.url_for(livestreams_search), listitem=li, isFolder=True)
 
 	endOfDirectory(h)
 
 
-@plugin.route('/followed_live')
-def followed_live():
+def build_followed_live():
 	anylive = False
 	h = plugin.handle
 	setContent(h, "videos")
@@ -62,8 +97,7 @@ def followed_live():
 	endOfDirectory(h)
 
 
-@plugin.route('/followed_replay')
-def followed_replay():
+def build_followed_replay():
 	any_followed = False
 
 	h = plugin.handle
@@ -88,8 +122,7 @@ def followed_replay():
 	endOfDirectory(h)
 
 
-@plugin.route('/followed_replay_user/<user>')
-def followed_replay_user(user):
+def build_followed_replay_user(user):
 	any_replays = False
 
 	h = plugin.handle
@@ -123,8 +156,41 @@ def followed_replay_user(user):
 	endOfDirectory(h)
 
 
-@plugin.route('/livestreams_search')
-def livestreams_search():
+def build_all_livestreams():
+	any_replays = False
+
+	h = plugin.handle
+	setContent(h, "videos")
+	f = dq.all_live_streams()
+
+	for u in f:
+		title = u[0]
+		playback_url = u[1]
+		thumb = u[2]
+		user = u[3]
+
+		li = ListItem(user + ": " + title, iconImage=thumb)
+		li.setProperty('IsPlayable', 'True')
+		li.setInfo("video", {'mediatype': 'video', 'duration': 0})
+		li.addStreamInfo('video', {'duration': 0})
+		li.setArt({'icon': thumb})
+		li.setArt({'poster': thumb})
+		li.setArt({'thumb': thumb})
+		li.setArt({'banner': thumb})
+
+		addDirectoryItem(h, playback_url, listitem=li, isFolder=False)
+
+		any_replays = True
+
+	if not any_replays:
+		li = ListItem("** NO LIVE STREAMS FOUND **", iconImage="")
+		li.setProperty('IsPlayable', 'False')
+		addDirectoryItem(h, "", listitem=li, isFolder=False)
+
+	endOfDirectory(h)
+
+
+def build_livestreams_search():
 	search_for = Dialog().input("Enter search", "", INPUT_ALPHANUM, 0, 0).upper()
 
 	any_replays = False
@@ -161,13 +227,9 @@ def livestreams_search():
 	endOfDirectory(h)
 
 
-@plugin.route('/open_settings')
-def open_settings():
+def build_open_settings():
 	xbmcaddon.Addon().openSettings()
 
 
 if __name__ == '__main__':
-	# logging.basicConfig(filename='/tmp/example.log', level=logging.DEBUG
-
 	plugin.run()
-# menubuilders.runme()

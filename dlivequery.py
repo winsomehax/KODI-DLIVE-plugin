@@ -1,126 +1,82 @@
 import graphql
 
 
-class DliveInfo():
-	_info = {}
-	_livestreams = {}
+def dq_get_user_info(uname):
+	client = graphql.GraphQLClient('https://graphigo.prd.dlive.tv/')
 
-	def __init__(self):
-		pass
+	if uname == "":
+		uname = "winsomehax"
 
-	def following(self, uname):
-		self.refresh(uname)
-		following = []
+	result = client.execute(
+		''' query { user(username: "''' + uname + '''") { following { totalCount list { displayname username 
+		livestream { thumbnailUrl title } pastBroadcasts { list { title length thumbnailUrl playbackUrl } } } } } 
+		} ''')
 
-		if not (self._info is None):
+	if result["data"]["user"] is None:
+		result = None
 
-			for u in self._info["data"]["user"]["following"]["list"]:
-				following.append((u["displayname"], u["username"]))
+	return result
 
-		return following
 
-	def replays(self, username, uname):
-		self.refresh(uname)
-		replays = []
+def dq_get_all_live_streams(after):
+	client = graphql.GraphQLClient('https://graphigo.prd.dlive.tv/')
 
-		if not (self._info is None):
-			for u in self._info["data"]["user"]["following"]["list"]:
-				if u["username"] == username:
-					for s in u["pastBroadcasts"]["list"]:
-						replays.append((s["title"], s["length"], s["thumbnailUrl"], s["playbackUrl"]))
+	result = client.execute(
+		'''query { livestreams (input: {showNSFW: true, order: TRENDING, after: "'''+after+'''"}) { pageInfo { startCursor, endCursor, 
+		hasNextPage, hasPreviousPage} list { id, permlink, ageRestriction, thumbnailUrl, disableAlert, title, 
+		createdAt, totalReward, watchingCount, creator {username, displayname}, view } } }''')
 
-		return replays
+	return result
 
-	def following_live_streams(self, uname):
-		self.refresh(uname)
-		streams = []
 
-		if not (self._info is None):
-			for u in self._info["data"]["user"]["following"]["list"]:
-				if u["livestream"] is not None:
-					streams.append(
-						(u["livestream"]["title"], 'https://live.prd.dlive.tv/hls/live/' + u["username"] + '.m3u8',
-						 u["livestream"]["thumbnailUrl"], u["displayname"]))
+def all_live_streams():
+	result = []
 
-		return streams
+	after_cursor = "0"
+	next_page = True
 
-	def all_live_streams(self):
-		self.refresh_livestreams()
-		streams = []
+	while next_page:
+		r = dq_get_all_live_streams(after_cursor)
+		next_page= r["data"]["livestreams"]["pageInfo"]["hasNextPage"]
+		after_cursor = r["data"]["livestreams"]["pageInfo"]["endCursor"]
 
-		if not (self._livestreams is None):
-			for u in self._livestreams["data"]["livestreams"]["list"]:
-				streams.append((u["title"], 'https://live.prd.dlive.tv/hls/live/' + u["creator"]["username"] + '.m3u8',
-								u["thumbnailUrl"], u["creator"]["displayname"]))
+		for u in r["data"]["livestreams"]["list"]:
+			result.append((u["title"], 'https://live.prd.dlive.tv/hls/live/' + u["creator"]["username"] + '.m3u8',
+						   u["thumbnailUrl"], u["creator"]["displayname"]))
 
-		return streams
+	return result
 
-	def refresh(self, uname):
-		client = graphql.GraphQLClient('https://graphigo.prd.dlive.tv/')
 
-		if uname == "":
-			uname = "winsomehax"
+def following_live_streams(uname):
+	r = dq_get_user_info(uname)
+	result = []
 
-		result = client.execute('''
-query {
-    user(username: "''' + uname + '''")
-    {
-        following{
-            totalCount
-            list {
-                displayname
-                username
-                livestream {
-                    thumbnailUrl
-                    title
-                }
-                pastBroadcasts {
-                    list {
-                        title
-                        length
-                        thumbnailUrl
-                        playbackUrl
-                    }
-                }
-            }
-        }
-    }
-}
+	for u in r["data"]["user"]["following"]["list"]:
+		if u["livestream"] is not None:
+			result.append(
+				(u["livestream"]["title"], 'https://live.prd.dlive.tv/hls/live/' + u["username"] + '.m3u8',
+				 u["livestream"]["thumbnailUrl"], u["displayname"]))
 
-        ''')
+	return result
 
-		if result["data"]["user"] == None:
-			self._info = None
-		else:
-			self._info = result
-		return result
 
-	def refresh_livestreams(self):
-		client = graphql.GraphQLClient('https://graphigo.prd.dlive.tv/')
+def following(uname):
+	r = dq_get_user_info(uname)
+	result = []
 
-		result = client.execute('''
-query {
-    livestreams{
-        list {
-  id,
-  permlink,
-  ageRestriction,
-  thumbnailUrl,
-  disableAlert,
-  title,
-  createdAt,
-  totalReward,
-  watchingCount,
-  creator {username, displayname},
-  view
-}
+	for u in r["data"]["user"]["following"]["list"]:
+		result.append((u["displayname"], u["username"]))
 
-    }
-}
-        ''')
+	return result
 
-		if result["data"] == None:
-			self._livestreams = None
-		else:
-			self._livestreams = result
-		return result
+
+def replays(username, uname):
+	r = dq_get_user_info(uname)
+	result = []
+
+	for u in r["data"]["user"]["following"]["list"]:
+		if username == u["username"]:
+			for s in u["pastBroadcasts"]["list"]:
+				result.append((s["title"], s["length"], s["thumbnailUrl"], s["playbackUrl"]))
+
+	return result

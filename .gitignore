@@ -1,6 +1,7 @@
 .gitignore
 /unused/
 /venv/
+/.venv/
 *.pyc
 /.idea/
 /.vscode/

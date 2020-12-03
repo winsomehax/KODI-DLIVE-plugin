@@ -6,6 +6,18 @@ import dlivequery as dq
 
 plugin = routing.Plugin()
 
+def get_dlive_userid():
+	display_name = xbmcaddon.Addon().getSetting("user")
+	user_id=dq.dq_dlive_userid_from_displayname(display_name)
+	if user_id is None:
+		dialog = Dialog()
+		ok = dialog.ok("Cannot find your chosen dlive user", "This dlive add-on cannot find the user you have specified in settings. Using the default: winsomehax")
+		user_id="winsomehax"
+		display_name="winsomehax"
+		xbmcaddon.Addon().setSetting(id="user", value="winsomehax")
+	
+	print("****** ", user_id, display_name)
+	return user_id, display_name
 
 @plugin.route('/')
 def index():
@@ -43,12 +55,12 @@ def open_settings():
 
 
 def build_main_menu():
-	dq_user = xbmcaddon.Addon().getSetting("user")
+	user_id, dq_display_user = get_dlive_userid()
 
 	h = plugin.handle
 
 	setContent(h, "videos")
-	li = ListItem("Your DLIVE username is: " + dq_user, iconImage="")
+	li = ListItem("Your DLIVE username is: " + dq_display_user, iconImage="")
 	li.setProperty('IsPlayable', 'False')
 	addDirectoryItem(h, plugin.url_for(open_settings), listitem=li, isFolder=True)
 
@@ -75,7 +87,9 @@ def build_followed_live():
 	anylive = False
 	h = plugin.handle
 	setContent(h, "videos")
-	f = dq.following_live_streams(xbmcaddon.Addon().getSetting("user"))
+	dq_user = dq.dq_dlive_userid_from_displayname(xbmcaddon.Addon().getSetting("user"))
+
+	f = dq.following_live_streams(dq_user)
 
 	for u in f:
 		name = u[0]
@@ -102,7 +116,10 @@ def build_followed_replay():
 
 	h = plugin.handle
 	setContent(h, "videos")
-	f = dq.following(xbmcaddon.Addon().getSetting("user"))
+
+	dq_user = dq.dq_dlive_userid_from_displayname(xbmcaddon.Addon().getSetting("user"))
+
+	f = dq.following(dq_user)
 
 	for u in f:
 		name = u[0]
@@ -127,7 +144,10 @@ def build_followed_replay_user(user):
 
 	h = plugin.handle
 	setContent(h, "videos")
-	f = dq.replays(user, xbmcaddon.Addon().getSetting("user"))
+
+	dq_user = dq.dq_dlive_userid_from_displayname(xbmcaddon.Addon().getSetting("user"))
+
+	f = dq.replays(user, dq_user)
 
 	for u in f:
 		title = u[0]
@@ -231,3 +251,4 @@ def build_livestreams_search():
 
 def build_open_settings():
 	xbmcaddon.Addon().openSettings()
+	l1, l2 = get_dlive_userid()

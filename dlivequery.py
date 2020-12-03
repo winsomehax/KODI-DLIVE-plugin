@@ -1,5 +1,19 @@
 import graphql
 
+def dq_dlive_userid_from_displayname(display_name):
+	client = graphql.GraphQLClient('https://graphigo.prd.dlive.tv/')
+
+	result = client.execute('''query { userByDisplayName ( displayname: "'''+display_name+'''") { username } }''')
+
+	print("!!! ", result)
+	m=result["data"]["userByDisplayName"]
+
+	if m is None:
+		user_id=None
+	else:
+		user_id=m["username"]
+
+	return (user_id)
 
 def dq_get_user_info(uname):
 	client = graphql.GraphQLClient('https://graphigo.prd.dlive.tv/')
@@ -48,6 +62,7 @@ def all_live_streams():
 
 
 def following_live_streams(uname):
+
 	r = dq_get_user_info(uname)
 	result = []
 

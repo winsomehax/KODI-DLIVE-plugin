@@ -1,13 +1,16 @@
 import graphql
 
-
+"""
+Given a dlive.tv display name, function makes a call to the API and returns the blockchain user_id (which never changes)
+or None
+"""
 def dq_dlive_userid_from_displayname(display_name):
+
     client = graphql.GraphQLClient('https://graphigo.prd.dlive.tv/')
 
     result = client.execute(
         '''query { userByDisplayName ( displayname: "'''+display_name+'''") { username } }''')
 
-    print("!!! ", result)
     m = result["data"]["userByDisplayName"]
 
     if m is None:
@@ -17,7 +20,10 @@ def dq_dlive_userid_from_displayname(display_name):
 
     return (user_id)
 
-
+"""
+Returns the graphql structure from dlive given the blockchain user id. The returned structure contains livestreams,
+past broadcasts and who the person is following.
+"""
 def dq_get_user_info(uname):
     client = graphql.GraphQLClient('https://graphigo.prd.dlive.tv/')
 
@@ -34,7 +40,9 @@ def dq_get_user_info(uname):
 
     return result
 
-
+"""
+Returns all the live streams after a certain point
+"""
 def dq_get_all_live_streams(after):
     client = graphql.GraphQLClient('https://graphigo.prd.dlive.tv/')
 
@@ -45,7 +53,9 @@ def dq_get_all_live_streams(after):
 
     return result
 
-
+"""
+Returns a list of all the extant live streams on DLIVE - by making multiple calls if necessary
+"""
 def all_live_streams():
     result = []
 
@@ -63,7 +73,10 @@ def all_live_streams():
 
     return result
 
-
+"""
+Get the graphql information for user (A) and then parse it into a list of that (A) is following and are
+currently live
+"""
 def following_live_streams(uname):
 
     r = dq_get_user_info(uname)
@@ -78,6 +91,9 @@ def following_live_streams(uname):
     return result
 
 
+"""
+Returns a list of users (blockchain id and display_name) that the user is following.
+"""
 def following(uname):
     r = dq_get_user_info(uname)
     result = []
@@ -88,6 +104,8 @@ def following(uname):
     return result
 
 
+"""
+"""
 def replays(username, uname):
     r = dq_get_user_info(uname)
     result = []

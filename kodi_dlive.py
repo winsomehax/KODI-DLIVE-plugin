@@ -12,8 +12,8 @@ def get_dlive_userid():
     user_id = dq.dq_dlive_userid_from_displayname(display_name)
     if user_id is None:
         dialog = Dialog()
-        ok = dialog.ok("Cannot find your chosen dlive user",
-                       "This dlive add-on cannot find the user you have specified in settings. Using the default: winsomehax")
+        ok = dialog.ok("Unable to find your DLIVE user",
+                       "The DLIVE add-on cannot find the Display Name specified in settings. Using the default: winsomehax")
         user_id = "winsomehax"
         display_name = "winsomehax"
         xbmcaddon.Addon().setSetting(id="user", value="winsomehax")

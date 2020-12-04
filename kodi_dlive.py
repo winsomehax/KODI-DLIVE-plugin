@@ -11,8 +11,7 @@ def valid_user():
     if not query.validated_user_id:
         # Warn the user that it's not a valid user
         dialog = Dialog()
-        ok = dialog.ok("Warning",
-                       "The DLIVE add-on has not found your user on DLIVE")
+        dialog.ok("Warning", "The DLIVE add-on has not found your user on DLIVE")
         return False
     
     return True
@@ -247,8 +246,8 @@ def get_dlive_userid():
     
         # Warn the user that it's not a valid user and resort to DLive so the add-on at least runs
         dialog = Dialog()
-        ok = dialog.ok("Unable to find your DLIVE user",
-                       "The DLIVE add-on cannot find the Display Name specified in settings. Using the default: DLive")
+        dialog.ok("Unable to find your DLIVE user",
+                  "The DLIVE add-on cannot find the Display Name specified in settings. Using the default: DLive")
         
         query.set_user_id("DLive")                   # set it as winsomehax
         xbmcaddon.Addon().setSetting(id="user", value="DLive") # Write that to the settings

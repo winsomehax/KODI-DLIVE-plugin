@@ -7,3 +7,4 @@ v1.0.1
 - Code tidying - Python PEP8
 - Reorg and abstract away the DLIVE stuff, so it's hidden inside python classes/methods
 - Ran kodi-addon-checker and cleaned up errors. Icon sizes, fan art icon, XML missing attributes etc, minor stuff
+- Set default user to DLive

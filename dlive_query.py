@@ -100,7 +100,6 @@ class Query():
 
     def __get_user_info(self, user_id):
 
-        print ("USER ID: ", user_id)
         result = self.__execute(
             ''' query { user(username: "''' + user_id + '''") { following { totalCount list { displayname username 
             livestream { thumbnailUrl title } pastBroadcasts { list { title length thumbnailUrl playbackUrl } } } } } 
@@ -160,8 +159,6 @@ class Query():
         user_info = self.__get_user_info(self.user_id)
 
         result = []
-
-        print ("***************** ", str(user_info))
 
         for stream in user_info["data"]["user"]["following"]["list"]:
             if stream["livestream"] is not None:

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.dlive" name="dlive.tv" version="1.0.0" provider-name="winsomehax">
+<addon id="plugin.video.dlive" name="dlive.tv" version="1.1.0" provider-name="winsomehax">
     <requires>
-        <import addon="xbmc.python" version="2.25.0"/>
+        <import addon="xbmc.python" version="2.26.0"/>
         <import addon="script.module.routing" version="0.2.0"/>
         <import addon="script.module.requests" version="2.9.1"/>
     </requires>
@@ -11,15 +11,15 @@
     <extension point="xbmc.addon.metadata">
         <summary lang="en_GB">Viewing streams from dlive.tv</summary>
         <description lang="en_GB">Viewing streams from dlive.tv</description>
-        <language></language>
+        <language>English</language>
         <platform>all</platform>
         <license>GPL-3.0</license>
-        <forum></forum>
-        <website></website>
+        <forum>https://github.com/winsomehax/KODI-DLIVE-plugin</forum>
+        <website>https://github.com/winsomehax/KODI-DLIVE-plugin</website>
         <email>winsomehax@gmail.com</email>
-        <source></source>
-        <news></news>
-        <disclaimer>It's yours. If you break it, you can keep the pieces.</disclaimer>
+        <source>https://github.com/winsomehax/KODI-DLIVE-plugin</source>
+        <news>https://github.com/winsomehax/KODI-DLIVE-plugin</news>
+        <disclaimer lang="en">It's yours. If you break it, you can keep the pieces!</disclaimer>
         <assets>
             <icon>resources/icon.png</icon>
             <fanart>resources/fanart.jpg</fanart>

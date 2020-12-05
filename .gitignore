@@ -1,2 +1,9 @@
+.gitignore
 /unused/
 /venv/
+/.venv/
+*.pyc
+/.idea/
+/.vscode/
+/__pycache__/
+testy.py

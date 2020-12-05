@@ -13,5 +13,5 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 msgctxt "#32002"
-msgid "DLIVE username (use all lowercase)"
+msgid "DLIVE Display Name"
 msgstr ""

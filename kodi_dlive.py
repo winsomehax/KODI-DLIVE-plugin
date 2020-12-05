@@ -1,233 +1,201 @@
 import routing
-from xbmcplugin import addDirectoryItem, endOfDirectory, setContent
-from xbmcgui import ListItem, Dialog, INPUT_ALPHANUM
+from xbmcgui import Dialog, INPUT_ALPHANUM
 import xbmcaddon
-import dlivequery as dq
+import dlive_query
+import KODIMenu as kodi_menu
+
 
 plugin = routing.Plugin()
 
 
+def valid_user():
+    global query
+    if not query.validated_user_id:
+        # Warn the user that it's not a valid user
+        dialog = Dialog()
+        dialog.ok("Warning", "The DLIVE add-on has not found your user on DLIVE")
+        return False
+
+    return True
+
+
 @plugin.route('/')
 def index():
-	build_main_menu()
+    build_main_menu()
 
 
 @plugin.route('/followed_live')
 def followed_live():
-	build_followed_live()
+
+    if not valid_user:
+        return
+
+    build_followed_live()
 
 
 @plugin.route('/followed_replay')
 def followed_replay():
-	build_followed_replay()
+    if not valid_user:
+        return
+
+    build_followed_replay()
 
 
-@plugin.route('/followed_replay_user/<user>')
-def followed_replay_user(user):
-	build_followed_replay_user(user)
+@plugin.route('/followed_replay_user/<item_val>')
+def followed_replay_user(item_val):
+
+    if not valid_user:
+        return
+
+    build_followed_replay_user(item_val)
 
 
 @plugin.route('/livestreams_search')
 def livestreams_search():
-	build_livestreams_search()
+    """ There is no test for valid_user needed here. getting all the livestreams (to search through) doesn't require a user id
+    Even if there is a problem in future, this bit of the add-on should still run """
+    build_livestreams_search()
 
 
 @plugin.route('/all_livestreams')
 def livestreams_all():
-	build_all_livestreams()
+    """ There is no test for valid_user needed here. getting all the livestreams doesn't require a user id
+    Even if there is a problem in future, this bit of the add-on should still run """
+
+    build_all_livestreams()
 
 
 @plugin.route('/open_settings')
 def open_settings():
-	build_open_settings()
+    build_open_settings()
 
 
 def build_main_menu():
-	dq_user = xbmcaddon.Addon().getSetting("user")
+    display_user = get_dlive_userid()
+   
+    global menu
+    menu.start_folder()
 
-	h = plugin.handle
-
-	setContent(h, "videos")
-	li = ListItem("Your DLIVE username is: " + dq_user, iconImage="")
-	li.setProperty('IsPlayable', 'False')
-	addDirectoryItem(h, plugin.url_for(open_settings), listitem=li, isFolder=True)
-
-	li = ListItem("Currently live streamers you follow", iconImage="")
-	li.setProperty('IsPlayable', 'False')
-	addDirectoryItem(h, plugin.url_for(followed_live), listitem=li, isFolder=True)
-
-	li = ListItem('Replays of streamers you follow', iconImage="")
-	li.setProperty('IsPlayable', 'False')
-	addDirectoryItem(h, plugin.url_for(followed_replay), listitem=li, isFolder=True)
-
-	li = ListItem('View all currently live streams', iconImage="")
-	li.setProperty('IsPlayable', 'False')
-	addDirectoryItem(h, plugin.url_for(livestreams_all), listitem=li, isFolder=True)
-
-	li = ListItem('Search currently live streams', iconImage="")
-	li.setProperty('IsPlayable', 'False')
-	addDirectoryItem(h, plugin.url_for(livestreams_search), listitem=li, isFolder=True)
-
-	endOfDirectory(h)
+    menu.new_folder_item(item_name="Your DLIVE username is: " +
+                         display_user, item_val=None, func=open_settings)
+    menu.new_folder_item(
+        item_name="Currently live streamers you follow", item_val=None, func=followed_live)
+    menu.new_folder_item(
+        item_name="Replays of streamers you follow", item_val=None, func=followed_replay)
+    menu.new_folder_item(
+        item_name="View all currently live streams", item_val=None, func=livestreams_all)
+    menu.new_folder_item(item_name="Search currently live streams",
+                         item_val=None, func=livestreams_search)
+    menu.end_folder()
 
 
 def build_followed_live():
-	anylive = False
-	h = plugin.handle
-	setContent(h, "videos")
-	f = dq.following_live_streams(xbmcaddon.Addon().getSetting("user"))
 
-	for u in f:
-		name = u[0]
-		url = u[1]
-		thumb = u[2]
-		streamer = u[3]
+    global query, menu
+    live_streams = query.get_following_live_streams()
 
-		li = ListItem(streamer + ": " + name, iconImage=thumb)
-		li.setProperty('IsPlayable', 'True')
-		addDirectoryItem(h, url, listitem=li, isFolder=False)
+    if 0 == len(live_streams):
+        menu.new_info_item("** NONE OF THE STREAMERS YOU FOLLOW ARE LIVE **")
+    else:
+        for stream in live_streams:
+            menu.new_video_item(stream.displayName, stream.title,
+                                stream.playURL, stream.thumbURL, duration=0)
 
-		anylive = True
-
-	if not anylive:
-		li = ListItem("** NONE OF THE STREAMERS YOU FOLLOW ARE LIVE **", iconImage="")
-		li.setProperty('IsPlayable', 'False')
-		addDirectoryItem(h, "", listitem=li, isFolder=False)
-
-	endOfDirectory(h)
+    menu.end_folder()
 
 
 def build_followed_replay():
-	any_followed = False
 
-	h = plugin.handle
-	setContent(h, "videos")
-	f = dq.following(xbmcaddon.Addon().getSetting("user"))
+    global query, menu
 
-	for u in f:
-		name = u[0]
-		url = plugin.url_for(followed_replay_user, user=u[1])
+    following = query.get_following()
 
-		li = ListItem(name, iconImage="")
-		li.setProperty('IsPlayable', 'False')
-		addDirectoryItem(h, url, listitem=li, isFolder=True)
+    if 0 == len(following):
+        menu.new_info_item("** YOU ARE NOT FOLLOWING ANYONE **")
+    else:
+        for user in following:
+            menu.new_folder_item(item_name=user.displayName,
+                                 item_val=user.user_id, func=followed_replay_user)
 
-		any_followed = True
-
-	if not any_followed:
-		li = ListItem("** YOU ARE NOT FOLLOWING ANYONE **", iconImage="")
-		li.setProperty('IsPlayable', 'False')
-		addDirectoryItem(h, "", listitem=li, isFolder=False)
-
-	endOfDirectory(h)
+    menu.end_folder()
 
 
-def build_followed_replay_user(user):
-	any_replays = False
+def build_followed_replay_user(item_val):
 
-	h = plugin.handle
-	setContent(h, "videos")
-	f = dq.replays(user, xbmcaddon.Addon().getSetting("user"))
+    global query, menu
+    replays = query.get_replays(item_val)
 
-	for u in f:
-		title = u[0]
-		length = u[1]
-		thumb = u[2]
-		playback_url = u[3]
+    if 0 == len(replays):
+        menu.new_info_item("** NO REPLAYS FOUND **")
+    else:
+        for stream in replays:
+            menu.new_video_item(displayName=stream.title, title=stream.title,
+                                playURL=stream.playURL, thumbURL=stream.thumbURL, duration=stream.length)
 
-		li = ListItem(title, iconImage=thumb)
-		li.setProperty('IsPlayable', 'True')
-		li.setInfo("video", {'mediatype': 'video', 'duration': length})
-		li.addStreamInfo('video', {'duration': length})
-		li.setArt({'icon': thumb})
-		li.setArt({'poster': thumb})
-		li.setArt({'thumb': thumb})
-		li.setArt({'banner': thumb})
-
-		addDirectoryItem(h, playback_url, listitem=li, isFolder=False)
-
-		any_replays = True
-
-	if not any_replays:
-		li = ListItem("** NO REPLAYS FOUND **", iconImage="")
-		li.setProperty('IsPlayable', 'False')
-		addDirectoryItem(h, "", listitem=li, isFolder=False)
-
-	endOfDirectory(h)
+    menu.end_folder()
 
 
 def build_all_livestreams():
-	any_replays = False
 
-	h = plugin.handle
-	setContent(h, "videos")
-	f = dq.all_live_streams()
+    global query, menu
+    streams = query.get_all_live_streams()
 
-	for u in f:
-		title = u[0]
-		playback_url = u[1]
-		thumb = u[2]
-		user = u[3]
+    if 0 == len(streams):
+        menu.new_info_item("** NO LIVE STREAMS FOUND **")
+    else:
+        for stream in streams:
 
-		li = ListItem(user + ": " + title, iconImage=thumb)
-		#li.setLabel(title)
-		#li.setLabel2(user)
-		li.setProperty('IsPlayable', 'True')
-		li.setInfo("video", {'mediatype': 'video', 'duration': 0})
-		li.addStreamInfo('video', {'duration': 0})
-		li.setArt({'icon': thumb})
-		li.setArt({'poster': thumb})
-		li.setArt({'thumb': thumb})
-		li.setArt({'banner': thumb})
+            menu.new_video_item(displayName=stream.title, title=stream.title,
+                                playURL=stream.playURL, thumbURL=stream.thumbURL, duration=None)
 
-		addDirectoryItem(h, playback_url, listitem=li, isFolder=False)
-
-		any_replays = True
-
-	if not any_replays:
-		li = ListItem("** NO LIVE STREAMS FOUND **", iconImage="")
-		li.setProperty('IsPlayable', 'False')
-		addDirectoryItem(h, "", listitem=li, isFolder=False)
-
-	endOfDirectory(h)
+    menu.end_folder()
 
 
 def build_livestreams_search():
-	search_for = Dialog().input("Enter search", "", INPUT_ALPHANUM, 0, 0).upper()
 
-	any_replays = False
+    search_for = Dialog().input("Enter search", "", INPUT_ALPHANUM, 0, 0).upper()
 
-	h = plugin.handle
-	setContent(h, "videos")
-	f = dq.all_live_streams()
+    global query, menu
+    streams = query.get_all_live_streams()
 
-	for u in f:
-		title = u[0]
-		playback_url = u[1]
-		thumb = u[2]
-		user = u[3]
+    if 0 == len(streams):
+        menu.new_info_item("** NO LIVE STREAMS FOUND **")
+    else:
 
-		if search_for in title.upper():
-			li = ListItem(user + ": " + title, iconImage=thumb)
-			li.setProperty('IsPlayable', 'True')
-			li.setInfo("video", {'mediatype': 'video', 'duration': 0})
-			li.addStreamInfo('video', {'duration': 0})
-			li.setArt({'icon': thumb})
-			li.setArt({'poster': thumb})
-			li.setArt({'thumb': thumb})
-			li.setArt({'banner': thumb})
+        for stream in streams:
 
-			addDirectoryItem(h, playback_url, listitem=li, isFolder=False)
+            if search_for in stream.title.upper():
 
-			any_replays = True
+                menu.new_video_item(displayName=stream.title, title=stream.title,
+                                    playURL=stream.playURL, thumbURL=stream.thumbURL, duration=None)
 
-	if not any_replays:
-		li = ListItem("** NO LIVE STREAMS FOUND **", iconImage="")
-		li.setProperty('IsPlayable', 'False')
-		addDirectoryItem(h, "", listitem=li, isFolder=False)
-
-	endOfDirectory(h)
+    menu.end_folder()
 
 
 def build_open_settings():
-	xbmcaddon.Addon().openSettings()
+    xbmcaddon.Addon().openSettings()
+    get_dlive_userid()
+
+
+def get_dlive_userid():
+    global query, menu
+    # What is the Display Name set as in the add-on settings
+    display_name = xbmcaddon.Addon().getSetting("user")
+
+    # set the query object if it has a valid blockchain user-id
+    if not query.set_user_id(display_name):
+
+        # Warn the user that it's not a valid user and resort to DLive so the add-on at least runs
+        dialog = Dialog()
+        dialog.ok("Unable to find your DLIVE user",
+                  "The DLIVE add-on cannot find the Display Name specified in settings. Using the default: DLive")
+
+        query.set_user_id("DLive")                   # set it as winsomehax
+        xbmcaddon.Addon().setSetting(id="user", value="DLive")  # Write that to the settings
+
+    return display_name
+
+
+query = dlive_query.Query()
+menu = kodi_menu.KODIMenu(plugin)
+get_dlive_userid()

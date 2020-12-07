@@ -17,10 +17,16 @@ class KODIMenu():
 
     def new_video_item(self, displayName, title, playURL, thumbURL, duration):
 
-        li = ListItem(displayName + ": " + title, playURL, iconImage=thumbURL)
+        print ("************************* ", displayName, title)
+        if displayName is not None:
+            str=displayName + ": " + title
+        else:
+            str=title
+        #li = ListItem(displayName + ": " + title, playURL)#, iconImage=thumbURL)
+        li = ListItem(label=str, path=playURL)
 
         li.setProperty('IsPlayable', 'True')
-        li.setInfo("video", {'mediatype': 'video', 'duration': 0})
+        li.setInfo("video", {'mediatype': 'video', 'duration': duration})
         li.addStreamInfo('video', {'duration': duration})
         li.setArt({'icon': thumbURL})
         li.setArt({'poster': thumbURL})

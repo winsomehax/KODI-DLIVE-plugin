@@ -19,12 +19,12 @@ Data class - unsure if @dataclass is allowed in Kodi
 """
 class ReplayStream():
 
-    def __init__(self, title, playURL, thumbURL, length):
+    def __init__(self, displayName, title, playURL, thumbURL, length):
         self.title = title
         self.playURL = playURL
         self.thumbURL = thumbURL
         self.length = length
-
+        self.displayName = displayName
 
 """
 Data class - unsure if @dataclass is allowed in Kodi
@@ -198,7 +198,7 @@ class Query():
         for u in r["data"]["user"]["following"]["list"]:
             if username == u["username"]:
                 for s in u["pastBroadcasts"]["list"]:
-                    record = ReplayStream(
+                    record = ReplayStream(displayName=None,
                         title=s["title"], playURL=s["playbackUrl"], thumbURL=s["thumbnailUrl"], length=s["length"])
                     result.append(record)
 

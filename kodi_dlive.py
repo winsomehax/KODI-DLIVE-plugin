@@ -98,8 +98,8 @@ def build_followed_live():
         menu.new_info_item("** NONE OF THE STREAMERS YOU FOLLOW ARE LIVE **")
     else:
         for stream in live_streams:
-            menu.new_video_item(stream.displayName, stream.title,
-                                stream.playURL, stream.thumbURL, duration=0)
+            menu.new_video_item(displayName=stream.displayName, title=stream.title,
+                                playURL=stream.playURL, thumbURL=stream.thumbURL, duration=0)
 
     menu.end_folder()
 
@@ -129,7 +129,7 @@ def build_followed_replay_user(item_val):
         menu.new_info_item("** NO REPLAYS FOUND **")
     else:
         for stream in replays:
-            menu.new_video_item(displayName=stream.title, title=stream.title,
+            menu.new_video_item(displayName=stream.displayName, title=stream.title,
                                 playURL=stream.playURL, thumbURL=stream.thumbURL, duration=stream.length)
 
     menu.end_folder()
@@ -145,7 +145,7 @@ def build_all_livestreams():
     else:
         for stream in streams:
 
-            menu.new_video_item(displayName=stream.title, title=stream.title,
+            menu.new_video_item(displayName=stream.displayName, title=stream.title,
                                 playURL=stream.playURL, thumbURL=stream.thumbURL, duration=None)
 
     menu.end_folder()
@@ -166,7 +166,7 @@ def build_livestreams_search():
 
             if search_for in stream.title.upper():
 
-                menu.new_video_item(displayName=stream.title, title=stream.title,
+                menu.new_video_item(displayName=stream.displayName, title=stream.title,
                                     playURL=stream.playURL, thumbURL=stream.thumbURL, duration=None)
 
     menu.end_folder()

@@ -17,7 +17,6 @@ class KODIMenu():
 
     def new_video_item(self, displayName, title, playURL, thumbURL, duration):
 
-        print ("************************* ", displayName, title)
         if displayName is not None:
             str=displayName + ": " + title
         else:

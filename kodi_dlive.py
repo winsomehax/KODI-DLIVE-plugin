@@ -92,6 +92,8 @@ def build_main_menu():
 def build_followed_live():
 
     global query, menu
+    menu.start_folder()
+
     live_streams = query.get_following_live_streams()
 
     if 0 == len(live_streams):
@@ -107,6 +109,7 @@ def build_followed_live():
 def build_followed_replay():
 
     global query, menu
+    menu.start_folder()
 
     following = query.get_following()
 
@@ -123,6 +126,8 @@ def build_followed_replay():
 def build_followed_replay_user(item_val):
 
     global query, menu
+    menu.start_folder()
+
     replays = query.get_replays(item_val)
 
     if 0 == len(replays):
@@ -138,6 +143,8 @@ def build_followed_replay_user(item_val):
 def build_all_livestreams():
 
     global query, menu
+    menu.start_folder()
+
     streams = query.get_all_live_streams()
 
     if 0 == len(streams):
@@ -156,6 +163,8 @@ def build_livestreams_search():
     search_for = Dialog().input("Enter search", "", INPUT_ALPHANUM, 0, 0).upper()
 
     global query, menu
+    menu.start_folder()
+
     streams = query.get_all_live_streams()
 
     if 0 == len(streams):

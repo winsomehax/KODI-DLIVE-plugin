@@ -27,7 +27,7 @@ Option 2 will list any DLive user you are following that is also live at the mom
 
 Once you have a list of streams, select one and... enjoy watching.
 
-# IMPORTANT
+## IMPORTANT
 
 If you used an older version of this add-on, it asked for your DLive user id (this is the blockchain id that never changes) and store that in KODI settings. Now the add-on uses the DLive Display Name and stores that in settings. 
 

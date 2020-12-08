@@ -10,7 +10,7 @@ plugin = routing.Plugin()
 
 def valid_user():
     global query
-    if not query.validated_user_id:
+    if not query.validated_user:
         # Warn the user that it's not a valid user
         dialog = Dialog()
         dialog.ok("Warning", "The DLIVE add-on has not found your user on DLIVE")
@@ -192,14 +192,14 @@ def get_dlive_userid():
     display_name = xbmcaddon.Addon().getSetting("user")
 
     # set the query object if it has a valid blockchain user-id
-    if not query.set_user_id(display_name):
+    if not query.set_user(display_name):
 
         # Warn the user that it's not a valid user and resort to DLive so the add-on at least runs
         dialog = Dialog()
         dialog.ok("Unable to find your DLIVE user",
                   "The DLIVE add-on cannot find the Display Name specified in settings. Using the default: DLive")
 
-        query.set_user_id("DLive")                   # set it as winsomehax
+        query.set_user("DLive")                   # set it as winsomehax
         xbmcaddon.Addon().setSetting(id="user", value="DLive")  # Write that to the settings
 
     return display_name

@@ -5,6 +5,8 @@ import json
 """
 Data class - unsure if @dataclass is allowed in Kodi
 """
+
+
 class LiveStream():
 
     def __init__(self, title, playURL, thumbURL, displayName):
@@ -17,6 +19,8 @@ class LiveStream():
 """
 Data class - unsure if @dataclass is allowed in Kodi
 """
+
+
 class ReplayStream():
 
     def __init__(self, displayName, title, playURL, thumbURL, length):
@@ -26,9 +30,12 @@ class ReplayStream():
         self.length = length
         self.displayName = displayName
 
+
 """
 Data class - unsure if @dataclass is allowed in Kodi
 """
+
+
 class User():
 
     def __init__(self, displayName, user_id):
@@ -39,6 +46,8 @@ class User():
 """
 Query class for DLIVE - funnel all 
 """
+
+
 class Query():
 
     def __init__(self):
@@ -47,14 +56,10 @@ class Query():
         self.headername = None
         self.user_id = ""
         self.display_name = ""
-        self.validated_user_id = False
+        self.validated_user = False
 
     def __execute(self, query, variables=None):
         return self.__send(query, variables)
-
-    def __inject_token(self, token, headername='Authorization'):
-        self.token = token
-        self.headername = headername
 
     def __send(self, query, variables):
         data = {'query': query, 'variables': variables}
@@ -75,7 +80,7 @@ class Query():
     or None
     """
 
-    def set_user_id(self, display_name):
+    def set_user(self, display_name):
 
         result = self.__execute(
             '''query { userByDisplayName ( displayname: "'''+display_name+'''") { username } }''')
@@ -83,14 +88,14 @@ class Query():
         m = result["data"]["userByDisplayName"]
 
         if m is None:
-            self.validated_user_id = False
+            self.validated_user = False
             self.user_id = ""
             self.display_name = ""
             return False
 
         self.user_id = m["username"]
         self.display_name = display_name
-        self.validated_user_id = True
+        self.validated_user = True
         return True
 
     """
@@ -98,14 +103,14 @@ class Query():
     past broadcasts and who the person is following.
     """
 
-    def __get_user_info(self, user_id):
+    def __get_user_info(self, display_name):
 
         result = self.__execute(
-            ''' query { user(username: "''' + user_id + '''") { following { totalCount list { displayname username 
+            ''' query { userByDisplayName(displayname: "''' + display_name + '''") { following { totalCount list { displayname username 
             livestream { thumbnailUrl title } pastBroadcasts { list { title length thumbnailUrl playbackUrl } } } } } 
             } ''')
 
-        if result["data"]["user"] is None:
+        if result["data"]["userByDisplayName"] is None:
             result = None
 
         return result
@@ -156,11 +161,11 @@ class Query():
 
     def get_following_live_streams(self):
 
-        user_info = self.__get_user_info(self.user_id)
+        user_info = self.__get_user_info(self.display_name)
 
         result = []
 
-        for stream in user_info["data"]["user"]["following"]["list"]:
+        for stream in user_info["data"]["userByDisplayName"]["following"]["list"]:
             if stream["livestream"] is not None:
                 record = LiveStream(title=stream["livestream"]["title"],
                                     playURL='https://live.prd.dlive.tv/hls/live/' +
@@ -177,11 +182,11 @@ class Query():
     """
 
     def get_following(self):
-        r = self.__get_user_info(self.user_id)
+        r = self.__get_user_info(self.display_name)
 
         result = []
 
-        for u in r["data"]["user"]["following"]["list"]:
+        for u in r["data"]["userByDisplayName"]["following"]["list"]:
             record = User(displayName=u["displayname"],
                           user_id=u["username"])
             result.append(record)
@@ -192,14 +197,14 @@ class Query():
     """
 
     def get_replays(self, username):
-        r = self.__get_user_info(self.user_id)
+        r = self.__get_user_info(self.display_name)
         result = []
 
-        for u in r["data"]["user"]["following"]["list"]:
+        for u in r["data"]["userByDisplayName"]["following"]["list"]:
             if username == u["username"]:
                 for s in u["pastBroadcasts"]["list"]:
                     record = ReplayStream(displayName=None,
-                        title=s["title"], playURL=s["playbackUrl"], thumbURL=s["thumbnailUrl"], length=s["length"])
+                                          title=s["title"], playURL=s["playbackUrl"], thumbURL=s["thumbnailUrl"], length=s["length"])
                     result.append(record)
 
         return result

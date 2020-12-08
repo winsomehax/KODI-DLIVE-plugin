@@ -8,7 +8,7 @@ class KODIMenu():
         self.h = plugin.handle
 
     def start_folder(self):
-        setContent(self.h, "movies")
+        setContent(self.h, "files")
 
     def new_info_item(self, info):
         li = ListItem(label=info, iconImage="")
@@ -22,13 +22,14 @@ class KODIMenu():
         else:
             str=title
 
-        #li = ListItem(displayName + ": " + title, playURL)#, iconImage=thumbURL)
         li = ListItem(label=str, path=playURL)
 
         li.setProperty('IsPlayable', 'True')
-        #li.setInfo("video", {'mediatype': 'video', 'duration': duration})
         li.addStreamInfo('video', {'duration': duration})
         li.setArt({'icon': thumbURL, 'poster': thumbURL, 'thumb': thumbURL, 'banner': thumbURL})
+
+
+        #li.setInfo('video', { 'plot': 'Left hand desc' })
 
         addDirectoryItem(self.h, playURL, listitem=li, isFolder=False)
 

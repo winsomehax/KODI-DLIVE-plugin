@@ -1,5 +1,7 @@
 # KODI-DLIVE.plugin
 
+NOTE: if you are a KODI 19 user please try the KODI 19 branch. It only needed small changes and it works for me on the new Python 3 based KODI, but any extra testing is welcome.
+
 Welcome to my DLIVE addon for KODI
 
 I hope you get some use out of it. Feel free to feedback any suggestions and/or code improvements.

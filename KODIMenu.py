@@ -11,7 +11,7 @@ class KODIMenu():
         setContent(self.h, "files")
 
     def new_info_item(self, info):
-        li = ListItem(label=info, iconImage="")
+        li = ListItem(label=info)
         li.setProperty('IsPlayable', 'False')
         addDirectoryItem(self.h, "", listitem=li, isFolder=False)
 
@@ -35,7 +35,7 @@ class KODIMenu():
 
     def new_folder_item(self, item_name, item_val, func):
 
-        li = ListItem(label=item_name, iconImage="")
+        li = ListItem(label=item_name)
         li.setProperty('IsPlayable', 'False')
         addDirectoryItem(self.h, self.plugin.url_for(func, item_val=item_val),
                          listitem=li, isFolder=True)

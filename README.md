@@ -8,7 +8,8 @@ I hope you get some use out of it. Feel free to feedback any suggestions and/or 
 
 Instructions:
 
-* Install the add-on
+* Install the add-on. If you have problems with an error in KODI reporting a missing module... then the problem lies with the KODI add-on repository. They pulled a very old development version and have never updated it since. There is a workaround here to install the add-on locally: https://github.com/winsomehax/KODI-DLIVE-plugin/issues/9
+
 * Set your DLIVE name. You can get this from the DLIVE website. Open the profile for your account and then the settings - and finally the Display Name
 
 Once you have given the add-on your display name, it will access the DLive website to get the list of streamers you follow. 
@@ -35,11 +36,11 @@ If you used an older version of this add-on, it asked for your DLive user id (th
 
 So if upgrading may need you to enter your DLive display name again for some of the functions to work correctly.
 
-### Disclaimer
+## Disclaimer
 
 It's yours. If you break it, you can keep the pieces. If you want to add stuff feel free. You just need to follow the GPL and make your improvements available to others.
 
-### Support
+## Support
 Like KODI, this add-in code is free and will remain so. If you'd like to support work on it, then it would be appreciated. Throw a few satoshis (Bitcoin) to:
 
 ![BC](assets/bcaddress.png)

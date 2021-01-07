@@ -71,13 +71,11 @@ def open_settings():
 
 
 def build_main_menu():
-    display_user = get_dlive_userid()
    
     global menu
     menu.start_folder()
 
-    menu.new_folder_item(item_name="Your DLIVE username is: " +
-                         display_user, item_val=None, func=open_settings)
+    menu.new_folder_item(item_name="Set your DLIVE user", item_val=None, func=open_settings)
     menu.new_folder_item(
         item_name="Currently live streamers you follow", item_val=None, func=followed_live)
     menu.new_folder_item(

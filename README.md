@@ -18,7 +18,7 @@ By default the username is set to DLive - the offical DLive account.
 
 Open the addon and it will show the main menu:
 
-1) Your DLIVE username is: DLive
+1) Set your DLive user
 2) Currently live streamers you follow
 ...
 
